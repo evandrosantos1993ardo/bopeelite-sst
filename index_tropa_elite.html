@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔫 BOPE SST - Ranking Operacional</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;700&display=swap');
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 25%, #2b1a00 50%, #1a1a1a 75%, #0a0a0a 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 0, 0.03) 2px, rgba(255, 255, 0, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 0, 0.03) 2px, rgba(255, 255, 0, 0.03) 4px);
+            opacity: 0.3;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container { 
+            max-width: 1600px; 
+            margin: 0 auto; 
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border: 3px solid #FFD700;
+            border-top: 8px solid #FFD700;
+            border-bottom: 8px solid #FFD700;
+            box-shadow: 
+                0 0 40px rgba(255, 215, 0, 0.6),
+                inset 0 0 30px rgba(255, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #ff0000, #FFD700, #ff0000, transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .visitor-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.9em;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.6);
+            z-index: 10;
+            border: 2px solid #000;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .header-icon {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            font-size: 100px;
+            opacity: 0.3;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+        }
+
+        .header-icon-right {
+            left: auto;
+            right: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header-icon { display: none; }
+            .visitor-badge {
+                position: static;
+                display: inline-block;
+                margin: 10px 0;
+            }
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4em;
+            font-weight: 900;
+            color: #FFD700;
+            text-shadow: 
+                3px 3px 0px #000,
+                0 0 20px rgba(255, 215, 0, 0.8),
+                0 0 40px rgba(255, 0, 0, 0.6);
+            margin-bottom: 10px;
+            letter-spacing: 5px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 3px 3px 0px #000, 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 0, 0, 0.6); }
+            to { text-shadow: 3px 3px 0px #000, 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 0, 0, 0.8); }
+        }
+
+        .subtitle { 
+            font-size: 1.3em; 
+            color: #FFD700; 
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 2px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1em;
+            border: 2px solid #FFD700;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 0;
+            background: rgba(255, 215, 0, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #1a1a1a, #000);
+            color: #FFD700;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5);
+            background: linear-gradient(135deg, #000, #1a1a1a);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #333, #1a1a1a);
+            color: #FFD700;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD700, #FFA500, #FFD700);
+            background-size: 200% 200%;
+            color: #000;
+            animation: shimmer 3s ease infinite;
+            border-color: #000;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.8);
+        }
+
+        .search-section {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border: 2px solid #FFD700;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .search-container {
+            display: flex;
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+
+        input {
+            flex: 1;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #FFD700;
+            border-radius: 3px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #FFD700;
+            font-family: 'Orbitron', sans-serif;
+            min-width: 250px;
+        }
+
+        input::placeholder {
+            color: rgba(255, 215, 0, 0.5);
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .ranking-section {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border: 2px solid #FFD700;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .ranking-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5em;
+            color: #FFD700;
+            margin-bottom: 25px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0, 0, 0, 0.6));
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 3px;
+            border-left: 5px solid #FFD700;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .ranking-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+            border-left-width: 8px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(0, 0, 0, 0.8));
+        }
+
+        .rank-position {
+            font-size: 2em;
+            font-weight: bold;
+            color: #FFD700;
+            min-width: 70px;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        .rank-info {
+            flex: 1;
+            padding: 0 20px;
+        }
+
+        .rank-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .rank-patente {
+            color: #FFD700;
+            font-size: 1.1em;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .rank-gold {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #FFD700;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+        }
+
+        .aluno-detalhes {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            border-radius: 5px;
+            margin-top: 30px;
+            border: 3px solid #FFD700;
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.4);
+            display: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(0, 0, 0, 0.6));
+            padding: 25px;
+            border-radius: 3px;
+            text-align: center;
+            border: 2px solid #FFD700;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .stat-label {
+            font-size: 1em;
+            color: #e0e0e0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #FFD700;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+        }
+
+        .progress-section {
+            margin: 30px 0;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            border-radius: 3px;
+            border: 2px solid #FFD700;
+        }
+
+        .progress-bar-container {
+            background: rgba(0, 0, 0, 0.8);
+            height: 40px;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 15px;
+            border: 2px solid #FFD700;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #FFD700, #ff0000, #FFD700);
+            background-size: 200% 100%;
+            animation: progressShine 2s linear infinite;
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 1.1em;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        @keyframes progressShine {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        .benefit-item {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0, 0, 0, 0.6));
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 3px;
+            border-left: 4px solid #FFD700;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .benefit-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .categoria {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 3px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .cat-academico { background: #FFD700; color: #000; }
+        .cat-conforto { background: #ff0000; color: #fff; }
+        .cat-extras { background: #000; color: #FFD700; border: 1px solid #FFD700; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a1a, #000);
+            margin: 5% auto;
+            padding: 40px;
+            border: 3px solid #FFD700;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 900px;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.6);
+        }
+
+        .close {
+            color: #FFD700;
+            float: right;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            color: #ff0000;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+        }
+
+        .alert {
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 3px;
+            font-weight: bold;
+            text-align: center;
+            animation: slideDown 0.5s ease;
+            border: 2px solid;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .alert-success { background: rgba(76, 175, 80, 0.2); color: #4CAF50; border-color: #4CAF50; }
+        .alert-error { background: rgba(244, 67, 54, 0.2); color: #f44336; border-color: #f44336; }
+        .alert-warning { background: rgba(255, 152, 0, 0.2); color: #ff9800; border-color: #ff9800; }
+        .alert-info { background: rgba(255, 215, 0, 0.2); color: #FFD700; border-color: #FFD700; }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #FFD700;
+            color: #FFD700;
+            cursor: pointer;
+            border-radius: 3px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            background: #FFD700;
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5em; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .ranking-item { flex-direction: column; text-align: center; }
+            .rank-position { margin-bottom: 10px; }
+            .rank-info { padding: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="alertContainer"></div>
+        
+        <header>
+            <div class="visitor-badge">🎖️ OPERAÇÃO ATIVA</div>
+            <div class="header-icon">🔫</div>
+            <div class="header-icon header-icon-right">🎖️</div>
+            <h1>⚡ BOPE SST ⚡</h1>
+            <p class="subtitle">RANKING OPERACIONAL - ELITE DE SEGURANÇA</p>
+        </header>
+
+        <div class="action-buttons">
+            <button class="btn-primary" onclick="carregarDados()">🔄 ATUALIZAR DADOS</button>
+            <button class="btn-info" onclick="document.getElementById('modalMercado').style.display='block'">🏪 MERCADO TÁTICO</button>
+            <button class="btn-info" onclick="document.getElementById('modalPatentes').style.display='block'">🎖️ PATENTES BOPE</button>
+            <button class="btn-secondary" onclick="document.getElementById('configSection').style.display = document.getElementById('configSection').style.display === 'none' ? 'block' : 'none'">⚙️ CONFIGURAR</button>
+        </div>
+
+        <div id="configSection" class="search-section" style="display: none;">
+            <h2 style="font-family: 'Orbitron', sans-serif; color: #FFD700; margin-bottom: 20px; text-align: center; text-transform: uppercase;">⚙️ CONFIGURAÇÃO DO SISTEMA</h2>
+            <div style="max-width: 800px; margin: 0 auto;">
+                <input type="text" id="urlPlan1" placeholder="🔗 URL da Planilha de Ranking (CSV)" style="width: 100%; margin-bottom: 15px;">
+                <input type="text" id="urlPlan2" placeholder="🔗 URL do Log de Transações (CSV)" style="width: 100%; margin-bottom: 15px;">
+                <button class="btn-primary" onclick="salvarURLs()" style="width: 100%;">💾 SALVAR E CARREGAR</button>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <h2 style="font-family: 'Orbitron', sans-serif; color: #FFD700; margin-bottom: 20px; text-align: center; text-transform: uppercase;">🔍 BUSCAR OPERADOR</h2>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Digite seu nome...">
+                <button class="btn-primary" onclick="buscarAluno()">🔍 BUSCAR</button>
+            </div>
+        </div>
+
+        <div class="ranking-section">
+            <h2>🏆 RANKING TÁTICO 🏆</h2>
+            <div id="rankingPrincipal"></div>
+        </div>
+
+        <div id="alunoDetalhes" class="aluno-detalhes">
+            <h2 style="font-family: 'Orbitron', sans-serif; color: #FFD700; margin-bottom: 30px; text-align: center; font-size: 2.5em; text-transform: uppercase;">📊 PAINEL DO OPERADOR</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">🎖️ Insígnias</div>
+                    <div class="stat-value" id="saldoOuro">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">🎯 Missões</div>
+                    <div class="stat-value" id="totalMissoes">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">📊 Posição</div>
+                    <div class="stat-value" id="rankingPosicao">#0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">⚡ Patente Atual</div>
+                    <div class="stat-value" style="font-size: 1.5em;" id="patenteNome">-</div>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <h3 style="font-family: 'Orbitron', sans-serif; color: #FFD700; font-size: 1.5em; text-transform: uppercase;">📈 PROGRESSO OPERACIONAL</h3>
+                <p id="patenteProxima" style="color: #e0e0e0; margin-top: 10px; font-size: 1.1em;"></p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="patenteProgresso" style="width: 0%;">0%</div>
+                </div>
+            </div>
+
+            <h3 style="font-family: 'Orbitron', sans-serif; color: #FFD700; margin-top: 30px; margin-bottom: 20px; font-size: 1.8em; text-transform: uppercase;">🛒 BENEFÍCIOS DISPONÍVEIS</h3>
+            <div id="beneficiosContainer"></div>
+        </div>
+    </div>
+
+    <!-- MODAL MERCADO -->
+    <div id="modalMercado" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('modalMercado').style.display='none'">&times;</span>
+            <h2 style="font-family: 'Orbitron', sans-serif; color: #FFD700; margin-bottom: 25px; text-align: center; font-size: 2.5em; text-transform: uppercase;">🏪 MERCADO TÁTICO</h2>
+            
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="abrirTab('tabAcad')">🎓 ACADÊMICO</button>
+                <button class="tab-btn" onclick="abrirTab('tabConf')">🛋️ CONFORTO</button>
+                <button class="tab-btn" onclick="abrirTab('tabExt')">⭐ EXTRAS</button>
+            </div>
+
+            <div id="tabAcad" class="tab-content active"></div>
+            <div id="tabConf" class="tab-content"></div>
+            <div id="tabExt" class="tab-content"></div>
+        </div>
+    </div>
+
+    <!-- MODAL PATENTES -->
+    <div id="modalPatentes" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('modalPatentes').style.display='none'">&times;</span>
+            <h2 style="font-family: 'Orbitron', sans-serif; color: #FFD700; margin-bottom: 25px; text-align: center; font-size: 2.5em; text-transform: uppercase;">🎖️ PATENTES DO BOPE</h2>
+            <div id="listPatentes"></div>
+        </div>
+    </div>
+
+    <script>
+        let dadosRanking = [];
+        let dadosLog = [];
+        let URL_RANKING = '';
+        let URL_LOG = '';
+
+        const patentes = [
+            { min: 0, max: 49, nome: "RECRUTA", emoji: "🔰" },
+            { min: 50, max: 99, nome: "SOLDADO", emoji: "⚔️" },
+            { min: 100, max: 199, nome: "CABO", emoji: "🎖️" },
+            { min: 200, max: 349, nome: "SARGENTO", emoji: "🔱" },
+            { min: 350, max: 499, nome: "SUBTENENTE", emoji: "⭐" },
+            { min: 500, max: 699, nome: "TENENTE", emoji: "🌟" },
+            { min: 700, max: 999, nome: "CAPITÃO", emoji: "💫" },
+            { min: 1000, max: 999999, nome: "COMANDANTE BOPE", emoji: "⚡" }
+        ];
+
+        const mercado = {
+            academico: [
+                { nome: "Revisar resposta antes entrega", custo: 120 },
+                { nome: "Eliminar alternativa errada", custo: 160 },
+                { nome: "Converter falta leve em atividade", custo: 200 },
+                { nome: "Adiar entrega 1 aula", custo: 240 },
+                { nome: "Escolher tema prova", custo: 300 },
+                { nome: "Dica exclusiva professor", custo: 140 },
+                { nome: "Mini consultoria pré-prova", custo: 180 },
+                { nome: "Prova com consulta", custo: 450 },
+                { nome: "Pesquisar 1 resposta", custo: 280 },
+                { nome: "ChatGPT na prova", custo: 400 }
+            ],
+            conforto: [
+                { nome: "Não apresentar trabalho", custo: 250 },
+                { nome: "Aula com celular", custo: 200 },
+                { nome: "Sentar perto amigo", custo: 120 },
+                { nome: "Escolher ordem apresentação", custo: 150 },
+                { nome: "Escolher dinâmica aula", custo: 220 },
+                { nome: "Escolher exemplo aula", custo: 90 },
+                { nome: "Mais tempo intervalo", custo: 180 }
+            ],
+            extras: [
+                { nome: "Coca 2L/prêmio", custo: 350 },
+                { nome: "Transferir insígnias (taxa 50%)", custo: 0 }
+            ]
+        };
+
+        function obterPatente(insignias) {
+            return patentes.find(p => insignias >= p.min && insignias <= p.max) || patentes[0];
+        }
+
+        function calcularProgresso(insignias) {
+            const patenteAtual = obterPatente(insignias);
+            const indicePatenteAtual = patentes.indexOf(patenteAtual);
+            const proximaPatente = patentes[indicePatenteAtual + 1];
+            
+            if (!proximaPatente) {
+                return { progresso: 100, proxima: null };
+            }
+            
+            const totalParaProxima = proximaPatente.min - patenteAtual.min;
+            const progressoAtual = insignias - patenteAtual.min;
+            const percentual = Math.min(Math.round((progressoAtual / totalParaProxima) * 100), 100);
+            
+            return { progresso: percentual, proxima: proximaPatente };
+        }
+
+        function abrirTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabId === 'tabAcad') carregarMercadoAcademico();
+            if (tabId === 'tabConf') carregarMercadoConforto();
+            if (tabId === 'tabExt') carregarMercadoExtras();
+        }
+
+        function carregarMercadoAcademico() {
+            document.getElementById('tabAcad').innerHTML = mercado.academico.map(i => `
+                <div class="benefit-item">
+                    <div><span class="categoria cat-academico">ACADÊMICO</span> <strong>${i.nome}</strong></div>
+                    <div style="color: #FFD700; margin-top: 8px; font-size: 1.1em;">🎖️ ${i.custo > 0 ? i.custo + ' insígnias' : 'Taxa 50%'}</div>
+                </div>
+            `).join('');
+        }
+
+        function carregarMercadoConforto() {
+            document.getElementById('tabConf').innerHTML = mercado.conforto.map(i => `
+                <div class="benefit-item">
+                    <div><span class="categoria cat-conforto">CONFORTO</span> <strong>${i.nome}</strong></div>
+                    <div style="color: #FFD700; margin-top: 8px; font-size: 1.1em;">🎖️ ${i.custo > 0 ? i.custo + ' insígnias' : 'Taxa 50%'}</div>
+                </div>
+            `).join('');
+        }
+
+        function carregarMercadoExtras() {
+            document.getElementById('tabExt').innerHTML = mercado.extras.map(i => `
+                <div class="benefit-item">
+                    <div><span class="categoria cat-extras">EXTRAS</span> <strong>${i.nome}</strong></div>
+                    <div style="color: #FFD700; margin-top: 8px; font-size: 1.1em;">🎖️ ${i.custo > 0 ? i.custo + ' insígnias' : 'Taxa 50%'}</div>
+                </div>
+            `).join('');
+        }
+
+        function carregarListaPatentes() {
+            document.getElementById('listPatentes').innerHTML = patentes.map(p => `
+                <div style="padding: 20px; background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(0,0,0,0.6)); border-radius: 3px; margin-bottom: 15px; border-left: 5px solid #FFD700; border: 2px solid rgba(255,215,0,0.3);">
+                    <div style="font-size: 1.5em; color: #FFD700; font-weight: bold; font-family: 'Orbitron', sans-serif;">${p.emoji} ${p.nome}</div>
+                    <div style="color: #e0e0e0; margin-top: 8px; font-size: 1.1em;">${p.min} - ${p.max === 999999 ? '∞' : p.max} insígnias</div>
+                </div>
+            `).join('');
+        }
+
+        function salvarURLs() {
+            URL_RANKING = document.getElementById('urlPlan1').value.trim();
+            URL_LOG = document.getElementById('urlPlan2').value.trim();
+            
+            if (!URL_RANKING || !URL_LOG) {
+                mostrarAlerta('error', '❌ Preencha ambas as URLs!');
+                return;
+            }
+            
+            localStorage.setItem('urlPlan1', URL_RANKING);
+            localStorage.setItem('urlPlan2', URL_LOG);
+            
+            carregarDados();
+        }
+
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            if (!lines.length) return [];
+            
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            const result = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                const obj = {};
+                const currentLine = lines[i].split(',');
+                headers.forEach((h, j) => {
+                    obj[h] = currentLine[j] ? currentLine[j].trim().replace(/"/g, '') : '';
+                });
+                result.push(obj);
+            }
+            return result;
+        }
+
+        async function carregarDados() {
+            if (!URL_RANKING || !URL_LOG) {
+                mostrarAlerta('error', '❌ Configure as URLs primeiro!');
+                return;
+            }
+            
+            mostrarAlerta('info', '⏳ Carregando dados...');
+            
+            try {
+                const r1 = await fetch(URL_RANKING);
+                dadosRanking = parseCSV(await r1.text());
+                
+                const r2 = await fetch(URL_LOG);
+                dadosLog = parseCSV(await r2.text());
+                
+                exibirRanking();
+                mostrarAlerta('success', `✅ ${dadosRanking.length} operadores no ranking!`);
+                
+                setTimeout(() => document.getElementById('alertContainer').innerHTML = '', 3000);
+            } catch (e) {
+                mostrarAlerta('error', '❌ Erro ao carregar dados!');
+            }
+        }
+
+        function exibirRanking() {
+            const container = document.getElementById('rankingPrincipal');
+            const medals = ['🥇', '🥈', '🥉'];
+            
+            const ranking = [...dadosRanking].sort((a, b) => {
+                const insigniasA = parseInt(a.Ouro || a.ouro || 0);
+                const insigniasB = parseInt(b.Ouro || b.ouro || 0);
+                return insigniasB - insigniasA;
+            });
+            
+            container.innerHTML = ranking.map((aluno, i) => {
+                const nome = aluno.Nome || aluno.nome || 'Sem nome';
+                const insignias = parseInt(aluno.Ouro || aluno.ouro || 0);
+                const patente = obterPatente(insignias);
+                
+                return `
+                    <div class="ranking-item">
+                        <div class="rank-position">#${i + 1}</div>
+                        <div class="rank-info">
+                            <div class="rank-name">${nome}</div>
+                            <div class="rank-patente">${patente.emoji} ${patente.nome}</div>
+                        </div>
+                        <div class="rank-gold">${insignias} 🎖️</div>
+                        ${i < 3 ? `<div style="font-size: 2.5em; margin-left: 15px; filter: drop-shadow(0 5px 10px rgba(255,215,0,0.8));">${medals[i]}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function buscarAluno() {
+            const termo = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!termo) {
+                mostrarAlerta('warning', '⚠️ Digite seu nome para buscar!');
+                return;
+            }
+            
+            const aluno = dadosRanking.find(a => 
+                (a.Nome || a.nome || '').toLowerCase().includes(termo)
+            );
+            
+            if (aluno) {
+                exibirDetalhesAluno(aluno);
+                mostrarAlerta('success', `✅ Encontrado: ${aluno.Nome || aluno.nome}`);
+            } else {
+                mostrarAlerta('error', '❌ Operador não encontrado no ranking!');
+            }
+        }
+
+        function exibirDetalhesAluno(aluno) {
+            const nome = aluno.Nome || aluno.nome;
+            const insignias = parseInt(aluno.Ouro || aluno.ouro || 0);
+            
+            const ranking = [...dadosRanking].sort((a, b) => 
+                parseInt(b.Ouro || b.ouro || 0) - parseInt(a.Ouro || a.ouro || 0)
+            );
+            const posicao = ranking.findIndex(a => (a.Nome || a.nome) === nome) + 1;
+            
+            const transacoes = dadosLog.filter(t => 
+                (t.Aluno || t.aluno || '').toLowerCase() === nome.toLowerCase()
+            );
+            
+            const patente = obterPatente(insignias);
+            const progresso = calcularProgresso(insignias);
+            
+            document.getElementById('saldoOuro').textContent = insignias;
+            document.getElementById('totalMissoes').textContent = transacoes.length;
+            document.getElementById('rankingPosicao').textContent = `#${posicao}`;
+            document.getElementById('patenteNome').textContent = `${patente.emoji} ${patente.nome}`;
+            
+            if (progresso.proxima) {
+                document.getElementById('patenteProxima').textContent = 
+                    `Próxima Patente: ${progresso.proxima.nome} (${progresso.proxima.min} insígnias)`;
+            } else {
+                document.getElementById('patenteProxima').textContent = 'PATENTE MÁXIMA ALCANÇADA! ⚡';
+            }
+            
+            const barra = document.getElementById('patenteProgresso');
+            barra.style.width = progresso.progresso + '%';
+            barra.textContent = progresso.progresso + '%';
+            
+            const todosPrivilegios = [
+                ...mercado.academico.map(i => ({...i, cat: 'ACADÊMICO', cls: 'cat-academico'})),
+                ...mercado.conforto.map(i => ({...i, cat: 'CONFORTO', cls: 'cat-conforto'})),
+                ...mercado.extras.map(i => ({...i, cat: 'EXTRAS', cls: 'cat-extras'}))
+            ].sort((a, b) => a.custo - b.custo).slice(0, 10);
+            
+            document.getElementById('beneficiosContainer').innerHTML = todosPrivilegios.map(item => {
+                const disponivel = insignias >= item.custo && item.custo > 0;
+                return `
+                    <div class="benefit-item" style="${disponivel ? '' : 'opacity: 0.6;'}">
+                        <div><span class="categoria ${item.cls}">${item.cat}</span> <strong>${item.nome}</strong></div>
+                        <div style="color: ${disponivel ? '#4CAF50' : '#ff6b6b'}; margin-top: 8px; font-size: 1.1em; font-weight: bold;">
+                            🎖️ ${item.custo > 0 ? item.custo + ' insígnias' : 'Taxa 50%'}
+                            ${disponivel ? ' ✅ Disponível!' : ' 🔒 Insuficiente'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('alunoDetalhes').style.display = 'block';
+            document.getElementById('alunoDetalhes').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function mostrarAlerta(tipo, msg) {
+            document.getElementById('alertContainer').innerHTML = 
+                `<div class="alert alert-${tipo}">${msg}</div>`;
+        }
+
+        window.onload = () => {
+            URL_RANKING = localStorage.getItem('urlPlan1') || '';
+            URL_LOG = localStorage.getItem('urlPlan2') || '';
+            
+            if (URL_RANKING) document.getElementById('urlPlan1').value = URL_RANKING;
+            if (URL_LOG) document.getElementById('urlPlan2').value = URL_LOG;
+            
+            carregarListaPatentes();
+            carregarMercadoAcademico();
+            
+            if (URL_RANKING && URL_LOG) {
+                carregarDados();
+                document.getElementById('configSection').style.display = 'none';
+            }
+        };
+
+        document.getElementById('searchInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') buscarAluno();
+        });
+
+        window.onclick = e => {
+            if (e.target.classList.contains('modal')) e.target.style.display = 'none';
+        };
+    </script>
+</body>
+</html>
