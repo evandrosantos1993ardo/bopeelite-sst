@@ -1,0 +1,588 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+#app{font-family:'Nunito',sans-serif;max-width:680px;margin:0 auto;padding:1rem;}
+.screen{display:none;}
+.screen.active{display:block;}
+.entry-wrap{background:#1a1a2e;border-radius:20px;padding:2rem;border:2px solid #2a2a4e;}
+.entry-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,200,0,0.18);border:1.5px solid #ffc800;border-radius:99px;padding:5px 16px;font-size:12px;font-weight:800;color:#ffc800;letter-spacing:0.05em;margin-bottom:1.25rem;}
+.entry-title{font-size:28px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:6px;}
+.entry-title span{color:#ffc800;}
+.entry-sub{font-size:14px;color:#aaa;margin-bottom:1.75rem;}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.75rem;}
+.stat-box{background:#252545;border:1.5px solid #3a3a6e;border-radius:14px;padding:14px;text-align:center;}
+.stat-icon{font-size:22px;margin-bottom:4px;}
+.stat-val{font-size:20px;font-weight:900;color:#fff;}
+.stat-lbl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;}
+.field-lbl{font-size:12px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;display:block;}
+.name-select{width:100%;padding:13px 16px;font-size:15px;font-family:'Nunito',sans-serif;font-weight:700;border:2px solid #3a3a6e;border-radius:12px;background:#252545;color:#fff;appearance:none;cursor:pointer;margin-bottom:1.25rem;outline:none;}
+.name-select:focus{border-color:#ffc800;}
+.name-select option{background:#252545;color:#fff;}
+
+/* Team selector */
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem;}
+.team-btn{padding:14px 8px;font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;background:#252545;color:#aaa;border:2px solid #3a3a6e;border-radius:12px;cursor:pointer;transition:all 0.15s;text-align:center;}
+.team-btn:hover{border-color:#ffc800;color:#fff;background:#2e2e5e;}
+.team-btn.selected{background:rgba(255,200,0,0.18);border-color:#ffc800;color:#ffc800;}
+.team-btn .team-icon{font-size:20px;display:block;margin-bottom:4px;}
+
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn-play{width:100%;padding:16px;font-size:17px;font-weight:900;font-family:'Nunito',sans-serif;background:#ffc800;color:#1a1a2e;border:none;border-radius:14px;cursor:pointer;letter-spacing:0.03em;transition:transform 0.1s,filter 0.1s;}
+.btn-play:hover{filter:brightness(1.1);transform:translateY(-2px);}
+.btn-play:active{transform:scale(0.98);}
+.btn-dashboard{width:100%;padding:16px;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif;background:#252545;color:#fff;border:2px solid #3a3a6e;border-radius:14px;cursor:pointer;transition:all 0.15s;}
+.btn-dashboard:hover{border-color:#ffc800;background:#2e2e5e;}
+
+.quiz-top{background:#1a1a2e;border-radius:16px;padding:14px 16px;margin-bottom:1rem;border:2px solid #2a2a4e;}
+.quiz-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.player-chip{display:flex;align-items:center;gap:10px;}
+.avatar{width:36px;height:36px;background:#ffc800;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#1a1a2e;flex-shrink:0;}
+.player-name{font-size:14px;font-weight:800;color:#fff;}
+.player-sub{font-size:11px;color:#888;}
+.timer-chip{display:flex;align-items:center;gap:6px;background:#252545;border:2px solid #3a3a6e;border-radius:99px;padding:7px 16px;font-size:15px;font-weight:900;color:#fff;font-family:'Nunito',sans-serif;}
+.timer-chip.warn{background:#2a1f00;border-color:#ff9600;color:#ff9600;}
+.timer-chip.danger{background:#2a0000;border-color:#ff4444;color:#ff4444;animation:pulse 0.8s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+.xp-row{display:flex;align-items:center;gap:10px;}
+.xp-label{font-size:12px;font-weight:800;color:#ffc800;white-space:nowrap;}
+.xp-bar-wrap{flex:1;height:10px;background:#252545;border-radius:99px;overflow:hidden;border:1px solid #3a3a6e;}
+.xp-bar-fill{height:100%;background:linear-gradient(90deg,#ffc800,#ff8c00);border-radius:99px;transition:width 0.4s ease;}
+.xp-count{font-size:12px;font-weight:700;color:#888;white-space:nowrap;}
+.dots-wrap{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;padding:12px 14px;background:#1a1a2e;border-radius:12px;border:2px solid #2a2a4e;}
+.dot{width:13px;height:13px;border-radius:50%;background:#2a2a4e;border:2px solid #3a3a6e;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
+.dot:hover{transform:scale(1.4);border-color:#ffc800;}
+.dot.answered{background:#ffc800;border-color:#ffc800;}
+.dot.current{background:#fff;border-color:#fff;transform:scale(1.3);}
+.q-card{background:#1a1a2e;border:2px solid #2a2a4e;border-radius:18px;padding:1.5rem;margin-bottom:1rem;}
+.q-num-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,200,0,0.15);border:1.5px solid rgba(255,200,0,0.4);border-radius:99px;padding:4px 14px;font-size:12px;font-weight:800;color:#ffc800;margin-bottom:14px;}
+.q-text{font-size:15px;font-weight:700;color:#fff;line-height:1.65;margin-bottom:1.25rem;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt-btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 16px;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif;border:2px solid #3a3a6e;border-radius:12px;background:#252545;color:#ddd;cursor:pointer;transition:all 0.15s;}
+.opt-btn:hover{background:#2e2e5e;border-color:#ffc800;color:#fff;}
+.opt-btn.selected{background:#2a2000;border-color:#ffc800;color:#ffc800;}
+.opt-btn.selected .opt-letter{background:#ffc800;color:#1a1a2e;border-color:#ffc800;}
+.opt-letter{width:30px;height:30px;border-radius:8px;background:#1a1a2e;border:2px solid #3a3a6e;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0;color:#aaa;transition:all 0.15s;}
+.nav-row{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:10px;margin-top:4px;}
+.btn-nav{padding:13px 10px;font-size:14px;font-weight:800;font-family:'Nunito',sans-serif;background:#252545;color:#fff;border:2px solid #3a3a6e;border-radius:12px;cursor:pointer;transition:all 0.15s;}
+.btn-nav:hover:not(:disabled){background:#2e2e5e;border-color:#888;}
+.btn-nav:disabled{opacity:0.3;cursor:not-allowed;}
+.btn-finish{padding:13px 10px;font-size:14px;font-weight:900;font-family:'Nunito',sans-serif;background:#22c55e;color:#fff;border:2px solid #16a34a;border-radius:12px;cursor:pointer;transition:all 0.15s;}
+.btn-finish:hover{background:#16a34a;transform:translateY(-1px);}
+.result-wrap{background:#1a1a2e;border-radius:20px;padding:2rem;border:2px solid #2a2a4e;text-align:center;}
+.trophy{font-size:60px;margin-bottom:8px;}
+.result-title{font-size:24px;font-weight:900;color:#fff;margin-bottom:4px;}
+.result-name-big{font-size:15px;font-weight:700;color:#888;margin-bottom:0.5rem;}
+.result-team-big{font-size:13px;font-weight:800;color:#ffc800;margin-bottom:1.25rem;display:inline-block;background:rgba(255,200,0,0.12);border:1.5px solid rgba(255,200,0,0.3);border-radius:99px;padding:3px 14px;}
+.score-ring-wrap{margin:0 auto 1rem;width:140px;height:140px;position:relative;}
+.score-ring-wrap svg{transform:rotate(-90deg);}
+.score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-big{font-size:36px;font-weight:900;color:#fff;}
+.score-small{font-size:13px;color:#666;font-weight:700;}
+.status-pill{display:inline-block;padding:8px 24px;border-radius:99px;font-size:14px;font-weight:800;margin-bottom:1.5rem;margin-top:8px;}
+.status-pill.ok{background:rgba(34,197,94,0.2);border:2px solid #22c55e;color:#22c55e;}
+.status-pill.fail{background:rgba(239,68,68,0.2);border:2px solid #ef4444;color:#ef4444;}
+.answers-grid{display:flex;flex-direction:column;gap:7px;text-align:left;margin-top:1rem;}
+.ans-item{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:10px;font-size:13px;font-weight:700;border:2px solid;}
+.ans-item.ok{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.3);color:#ccc;}
+.ans-item.fail{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.3);color:#ccc;}
+.ans-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;margin-top:1px;}
+.ans-item.ok .ans-icon{background:rgba(34,197,94,0.25);color:#22c55e;}
+.ans-item.fail .ans-icon{background:rgba(239,68,68,0.25);color:#ef4444;}
+.ans-qtext{font-size:12px;color:#666;margin-top:3px;font-weight:600;}
+.sheets-bar{display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:10px;font-size:13px;font-weight:700;border:2px solid #3a3a6e;background:#252545;color:#aaa;margin-top:1rem;}
+.btn-back{margin-top:1.25rem;width:100%;padding:14px;font-size:14px;font-weight:800;font-family:'Nunito',sans-serif;background:#252545;color:#fff;border:2px solid #3a3a6e;border-radius:12px;cursor:pointer;transition:all 0.15s;}
+.btn-back:hover{border-color:#ffc800;}
+
+/* ── DASHBOARD ── */
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+.dash-title{font-size:22px;font-weight:900;color:#fff;}
+.dash-refresh{padding:8px 18px;font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;background:#252545;color:#ffc800;border:2px solid #ffc800;border-radius:99px;cursor:pointer;transition:all 0.15s;}
+.dash-refresh:hover{background:rgba(255,200,0,0.15);}
+.dash-refresh.loading{opacity:0.5;pointer-events:none;}
+.summary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem;}
+.sum-box{background:#1a1a2e;border:2px solid #2a2a4e;border-radius:14px;padding:14px;text-align:center;}
+.sum-val{font-size:26px;font-weight:900;color:#ffc800;}
+.sum-lbl{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-top:3px;}
+.teams-section{margin-bottom:1.25rem;}
+.section-title{font-size:13px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;}
+.team-row{background:#1a1a2e;border:2px solid #2a2a4e;border-radius:14px;padding:14px 16px;margin-bottom:8px;}
+.team-row-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.team-row-name{font-size:15px;font-weight:900;color:#fff;}
+.team-row-avg{font-size:13px;font-weight:800;color:#ffc800;}
+.team-bar-wrap{height:8px;background:#252545;border-radius:99px;overflow:hidden;}
+.team-bar-fill{height:100%;background:linear-gradient(90deg,#ffc800,#ff8c00);border-radius:99px;transition:width 0.6s ease;}
+.team-count{font-size:11px;color:#666;margin-top:5px;}
+.ranking-section{}
+.rank-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;background:#1a1a2e;border:2px solid #2a2a4e;margin-bottom:6px;}
+.rank-pos{width:28px;height:28px;border-radius:50%;background:#252545;border:2px solid #3a3a6e;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#aaa;flex-shrink:0;}
+.rank-pos.gold{background:rgba(255,200,0,0.2);border-color:#ffc800;color:#ffc800;}
+.rank-pos.silver{background:rgba(192,192,192,0.15);border-color:#c0c0c0;color:#c0c0c0;}
+.rank-pos.bronze{background:rgba(205,127,50,0.15);border-color:#cd7f32;color:#cd7f32;}
+.rank-info{flex:1;}
+.rank-name{font-size:13px;font-weight:800;color:#fff;}
+.rank-meta{font-size:11px;color:#666;margin-top:2px;}
+.rank-score{font-size:16px;font-weight:900;color:#ffc800;}
+.rank-pct{font-size:11px;color:#666;text-align:right;}
+.dash-empty{text-align:center;padding:2.5rem;color:#555;font-size:14px;font-weight:700;}
+.dash-error{text-align:center;padding:1.5rem;color:#ef4444;font-size:13px;font-weight:700;background:rgba(239,68,68,0.08);border:2px solid rgba(239,68,68,0.2);border-radius:12px;margin-bottom:1rem;}
+</style>
+
+<div id="app">
+  <!-- ENTRY SCREEN -->
+  <div id="screen-entry" class="screen active">
+    <div class="entry-wrap">
+      <div class="entry-badge">🛡️ SEGURANÇA DO TRABALHO</div>
+      <div class="entry-title">Quiz <span>Challenge</span></div>
+      <div class="entry-sub">Responda 20 questões em até 5 minutos e mostre seu conhecimento!</div>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-icon">❓</div><div class="stat-val">20</div><div class="stat-lbl">Questões</div></div>
+        <div class="stat-box"><div class="stat-icon">⏱️</div><div class="stat-val">5</div><div class="stat-lbl">Minutos</div></div>
+        <div class="stat-box"><div class="stat-icon">⭐</div><div class="stat-val">100</div><div class="stat-lbl">XP máx</div></div>
+      </div>
+
+      <label class="field-lbl" for="name-select">Selecione seu nome</label>
+      <select class="name-select" id="name-select">
+        <option value="">— escolha seu nome —</option>
+        <option>ANTONIELLY DOS SANTOS</option>
+        <option>CRISTHOFER RAILAN GEBIELUKA FERRAZ</option>
+        <option>CRISTOFER CARNEIRO DE SOUZA</option>
+        <option>EDSON MATHEUS DOS SANTOS</option>
+        <option>ENZO SOCOLOSKI DOS SANTOS</option>
+        <option>ERICK DOS SANTOS CARDOSO</option>
+        <option>FABIANE MARTINS DE ABREU</option>
+        <option>FELIPE BOAVA</option>
+        <option>GABRIEL SANTIAGO ZANON</option>
+        <option>GABRIELLY BOHMANN MARFIL</option>
+        <option>INGRID VITORIA RIBEIRO DA SILVA</option>
+        <option>ISABELE DE MATTOS SPERANDIO MACHADO</option>
+        <option>ISABELI RIBAS</option>
+        <option>ISABELLY RODRIGUES ALVES</option>
+        <option>JULYA CARNEIRO DE OLIVEIRA</option>
+        <option>KAINÃ BRISKY KALISZ</option>
+        <option>KAUÃ DE ALMEIDA GOMES</option>
+        <option>KAUÃ MATHEUS DOS SANTOS ALMEIDA</option>
+        <option>LAÍS CRISTINA CAMARGO SILVA</option>
+        <option>LUAN RABE DE OLIVEIRA</option>
+        <option>LUCAS GABRIEL LOPES DOS SANTOS</option>
+        <option>LUIZ GUSTAVO DA SILVA ROSNER</option>
+        <option>MARIA EDUARDA PICARSKI GONÇALVES</option>
+        <option>MARIA ISABELLY DE FREITAS SCHNAIDER</option>
+        <option>MURILO YURI DOS SANTOS</option>
+        <option>NATALY VITÓRIA SILVA RIBEIRO</option>
+        <option>NATHALY DEWEISY WOGLER LIMA</option>
+        <option>PEDRO HENRICK DE ALMEIDA COSTA</option>
+        <option>VICTOR MARCELO SILVA DE OLIVEIRA</option>
+        <option>VIKTOR DE OLIVEIRA BARBOSA</option>
+        <option>VINICIUS DE OLIVEIRA BARBOSA</option>
+        <option>YASMIN PONTES SOUZA</option>
+      </select>
+
+      <label class="field-lbl">Selecione sua equipe</label>
+      <div class="team-grid" id="team-grid">
+        <button class="team-btn" data-team="EQUIPE 1" onclick="selectTeam(this)"><span class="team-icon">🔵</span>EQUIPE 1</button>
+        <button class="team-btn" data-team="EQUIPE 2" onclick="selectTeam(this)"><span class="team-icon">🟢</span>EQUIPE 2</button>
+        <button class="team-btn" data-team="EQUIPE 3" onclick="selectTeam(this)"><span class="team-icon">🔴</span>EQUIPE 3</button>
+        <button class="team-btn" data-team="EQUIPE 4" onclick="selectTeam(this)"><span class="team-icon">🟡</span>EQUIPE 4</button>
+        <button class="team-btn" data-team="EQUIPE 5" onclick="selectTeam(this)"><span class="team-icon">🟣</span>EQUIPE 5</button>
+        <button class="team-btn" data-team="EQUIPE 6" onclick="selectTeam(this)"><span class="team-icon">🟠</span>EQUIPE 6</button>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-play" onclick="startQuiz()">🚀 INICIAR QUIZ</button>
+        <button class="btn-dashboard" onclick="openDashboard()">📊 DASHBOARD</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="screen-quiz" class="screen">
+    <div class="quiz-top">
+      <div class="quiz-top-row">
+        <div class="player-chip">
+          <div class="avatar" id="avatar-initials">?</div>
+          <div>
+            <div class="player-name" id="display-name"></div>
+            <div class="player-sub" id="q-progress-lbl">Questão 1 de 20</div>
+          </div>
+        </div>
+        <div class="timer-chip" id="timer-chip">⏱ <span id="timer-display">05:00</span></div>
+      </div>
+      <div class="xp-row">
+        <span class="xp-label">XP</span>
+        <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xp-bar" style="width:0%"></div></div>
+        <span class="xp-count" id="xp-count">0 / 100</span>
+      </div>
+    </div>
+    <div class="dots-wrap" id="dots-wrap"></div>
+    <div class="q-card">
+      <div class="q-num-badge" id="q-num-badge">⚡ Questão 1</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="opts" id="opts"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="goTo(currentQ-1)" disabled>← Anterior</button>
+      <button class="btn-nav" id="btn-next" onclick="goTo(currentQ+1)">Próxima →</button>
+      <button class="btn-finish" onclick="confirmFinish()">✅ Finalizar</button>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="screen-result" class="screen">
+    <div class="result-wrap">
+      <div class="trophy" id="trophy-icon">🏆</div>
+      <div class="result-title" id="result-title">Parabéns!</div>
+      <div class="result-name-big" id="result-name"></div>
+      <div class="result-team-big" id="result-team"></div>
+      <div class="score-ring-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="58" fill="none" stroke="#252545" stroke-width="12"/>
+          <circle cx="70" cy="70" r="58" fill="none" id="ring-fill" stroke="#ffc800" stroke-width="12" stroke-linecap="round" stroke-dasharray="364.4" stroke-dashoffset="364.4"/>
+        </svg>
+        <div class="score-center">
+          <div class="score-big" id="score-big">0</div>
+          <div class="score-small">de 20</div>
+        </div>
+      </div>
+      <div class="status-pill" id="status-pill">—</div>
+      <div class="sheets-bar" id="sheets-bar" style="display:none"></div>
+      <div class="answers-grid" id="answers-grid"></div>
+      <button class="btn-back" onclick="goHome()">↩ Voltar ao início</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD SCREEN -->
+  <div id="screen-dashboard" class="screen">
+    <div class="dash-header">
+      <div class="dash-title">📊 Dashboard</div>
+      <button class="dash-refresh" id="dash-refresh-btn" onclick="loadDashboard()">🔄 Atualizar</button>
+    </div>
+    <div id="dash-error" class="dash-error" style="display:none"></div>
+    <div id="dash-content">
+      <div class="dash-empty">⏳ Carregando dados...</div>
+    </div>
+    <button class="btn-back" onclick="goHome()">↩ Voltar ao início</button>
+  </div>
+</div>
+
+<script>
+const SHEETS_URL="https://script.google.com/macros/s/AKfycbwVjIoHrK1UTV72f5k8dm1r4dmX9y0hhrvliMomqxGR-Wh_R4-yCX73s8N2xYuxNIf-/exec";
+
+const ALL_Q=[
+  {q:"Durante uma inspeção, uma máquina sem proteção apresenta risco de esmagamento. Essa situação caracteriza:",opts:["Incidente","Perigo","Acidente","Indicador"],ans:1},
+  {q:"Um trabalhador avalia riscos antes de iniciar uma atividade. Essa ação corresponde a:",opts:["Execução","Planejamento","Monitoramento","Correção"],ans:1},
+  {q:"No ciclo PDCA, a análise dos resultados ocorre em:",opts:["Planejar","Executar","Verificar","Agir"],ans:2},
+  {q:"Após identificar falhas, a empresa implementa melhorias. Essa etapa é:",opts:["Planejar","Executar","Verificar","Agir"],ans:3},
+  {q:"Monitorar acidentes já ocorridos representa indicador:",opts:["Proativo","Reativo","Preventivo","Estratégico"],ans:1},
+  {q:"Inspeções preventivas representam indicador:",opts:["Reativo","Corretivo","Proativo","Operacional"],ans:2},
+  {q:"O EPI deve ser utilizado quando:",opts:["O trabalhador quiser","EPC não for suficiente","Houver fiscalização","Sempre opcional"],ans:1},
+  {q:"A escolha do extintor depende de:",opts:["Cor","Marca","Classe do incêndio","Peso"],ans:2},
+  {q:"Sistema contínuo de gestão de riscos documentado é:",opts:["APR","PGR","CAT","EPC"],ans:1},
+  {q:"Análise feita antes de iniciar uma atividade é chamada de:",opts:["OS","APR","GRO","EPC"],ans:1},
+  {q:"Evento sem lesão, mas com potencial de causar dano, é:",opts:["Acidente","Incidente","Doença","Risco"],ans:1},
+  {q:"Avaliação que cruza probabilidade e gravidade do dano é:",opts:["Auditoria","Matriz de risco","Inspeção","Controle"],ans:1},
+  {q:"Na hierarquia de controle de riscos, a medida mais eficaz é:",opts:["EPI","Treinamento","Eliminação","Controle administrativo"],ans:2},
+  {q:"Antes de adotar o EPI contra ruído, a prioridade deve ser:",opts:["Aplicar multa","Controle de engenharia","Treinamento","Demissão"],ans:1},
+  {q:"Fiação elétrica exposta é risco:",opts:["Químico","Biológico","Elétrico","Ergonômico"],ans:2},
+  {q:"Segurança em espaço confinado é tratada pela:",opts:["NR-10","NR-33","NR-35","NR-17"],ans:1},
+  {q:"O gerenciamento de riscos ocupacionais é exigido pela:",opts:["NR-5","NR-6","NR-1","NR-17"],ans:2},
+  {q:"Exames médicos periódicos dos trabalhadores pertencem ao:",opts:["PGR","PCMSO","APR","GRO"],ans:1},
+  {q:"Perigo oculto é aquele que:",opts:["É sempre visível","Não existe","Não é percebido facilmente","Causa dano imediato"],ans:2},
+  {q:"Risco alto ocorre quando:",opts:["Há baixa probabilidade","Há alta gravidade e probabilidade","Não há dano possível","Não há perigo identificado"],ans:1},
+  {q:"Comunicar um risco identificado demonstra:",opts:["Falha do trabalhador","Cultura de segurança","Comportamento reativo","Falta de controle"],ans:1},
+  {q:"A APR deve ser realizada:",opts:["Após o término da atividade","Antes de iniciar a atividade","Durante a atividade","Somente em auditorias"],ans:1},
+  {q:"O capacete é classificado como:",opts:["EPC","EPI","Ferramenta","Sistema de proteção"],ans:1},
+  {q:"Quem é o responsável por fornecer o EPI ao trabalhador?",opts:["O governo","O próprio trabalhador","O empregador","O sindicato"],ans:2},
+  {q:"As Normas Regulamentadoras (NRs) servem para:",opts:["Controlar produção","Garantir segurança e saúde no trabalho","Reduzir custos","Definir salários"],ans:1},
+  {q:"Qual NR trata da CIPA?",opts:["NR-10","NR-5","NR-6","NR-17"],ans:1},
+  {q:"Qual NR regulamenta os EPIs?",opts:["NR-5","NR-6","NR-10","NR-17"],ans:1},
+  {q:"O PCMSO tem como foco principal:",opts:["Gestão de riscos","Saúde dos trabalhadores","Controle de produção","Gestão de equipamentos"],ans:1},
+  {q:"Ruído excessivo é exemplo de risco:",opts:["Biológico","Químico","Físico","Ergonômico"],ans:2},
+  {q:"A matriz de risco avalia:",opts:["Tempo de trabalho","Probabilidade e gravidade","Produção do setor","Salário dos trabalhadores"],ans:1},
+  {q:"A relação correta entre perigo e risco é:",opts:["São conceitos iguais","Perigo é probabilidade","Perigo é a fonte; risco é a chance de dano","Risco é sempre o dano"],ans:2},
+  {q:"Baixo índice de acidentes com muitos riscos identificados indica:",opts:["Falha do sistema","Proatividade na gestão","Ineficiência operacional","Risco alto não controlado"],ans:1},
+  {q:"A etapa de correção no ciclo PDCA corresponde à letra:",opts:["P","D","C","A"],ans:3},
+  {q:"O EPI não resolve o risco na fonte. Isso indica falha na:",opts:["Norma aplicada","Hierarquia de controle","Treinamento dos trabalhadores","Forma de uso do EPI"],ans:1},
+  {q:"O indicador reativo:",opts:["Prevê acidentes","Previne riscos","Analisa o que já aconteceu","Elimina perigos"],ans:2},
+  {q:"Na hierarquia de controle, a prioridade máxima é:",opts:["EPI","Procedimento administrativo","Eliminação do risco","Treinamento"],ans:2},
+  {q:"Corrigir uma situação de risco sem comunicar é:",opts:["Uma boa prática","Ação proativa","Uma falha de procedimento","Uma atitude segura"],ans:2},
+  {q:"Qual opção representa um indicador proativo?",opts:["Registro de acidente","Inspeção de segurança","Emissão de CAT","Relatório de afastamento"],ans:1},
+  {q:"Substituir um produto perigoso por outro mais seguro é uma medida de:",opts:["EPI","Controle de engenharia","Substituição","Controle administrativo"],ans:2},
+  {q:"A relação correta entre PGR e GRO é:",opts:["São iguais","PGR substitui o GRO","PGR documenta o GRO","GRO é o documento"],ans:2},
+  {q:"Um trabalhador realiza atividade em altura sem proteção contra quedas. Isso está relacionado à:",opts:["NR-10","NR-17","NR-35","NR-33"],ans:2},
+  {q:"Um perigo imediato é aquele que:",opts:["Não apresenta risco","Se desenvolve lentamente","Pode causar dano de forma instantânea","Só ocorre após exposição prolongada"],ans:2},
+  {q:"Qual das opções representa um risco biológico?",opts:["Ruído","Poeira mineral","Vírus e bactérias","Vibração"],ans:2},
+  {q:"A principal função da CIPA é:",opts:["Aplicar penalidades","Representar o governo","Prevenir acidentes e doenças no trabalho","Controlar a produção"],ans:2},
+  {q:"Recusar o uso de EPI, sem justificativa técnica, é:",opts:["Permitido","Facultativo","Irregular","Recomendado em alguns casos"],ans:2},
+  {q:"As Normas Regulamentadoras devem ser cumpridas por:",opts:["Apenas empregadores","Apenas trabalhadores","Empregadores e trabalhadores","Apenas fiscais do trabalho"],ans:2},
+  {q:"No ciclo PDCA, a etapa responsável por implementar o plano é:",opts:["Planejar","Executar","Verificar","Agir"],ans:1},
+  {q:"A relação correta entre GRO e PGR é:",opts:["São independentes","PGR substitui o GRO","GRO é o processo e PGR é o documento","PGR é opcional"],ans:2},
+  {q:"Os EPCs têm como objetivo principal:",opts:["Proteger individualmente","Proteger coletivamente","Substituir EPIs","Reduzir custos"],ans:1},
+  {q:"Atividades com eletricidade são regulamentadas pela:",opts:["NR-23","NR-17","NR-10","NR-35"],ans:2},
+  {q:"A prevenção e combate a incêndios é tratada na:",opts:["NR-5","NR-10","NR-23","NR-33"],ans:2},
+  {q:"Um evento sem lesão, mas com potencial de dano, é definido como:",opts:["Acidente","Incidente","Risco","Perigo"],ans:1},
+  {q:"A sigla CLT significa:",opts:["Código Legal do Trabalho","Consolidação das Leis Trabalhistas","Controle Legal Técnico","Comissão Legal do Trabalho"],ans:1},
+  {q:"A CAT é utilizada para:",opts:["Controle interno","Comunicação de Acidente de Trabalho","Auditoria de riscos","Planejamento de segurança"],ans:1},
+  {q:"Perigo pode ser definido como:",opts:["Probabilidade de dano","Fonte com potencial de causar dano","Consequência do acidente","Tipo de risco"],ans:1},
+  {q:"Risco é melhor definido como:",opts:["Dano causado","Probabilidade isolada","Probabilidade mais gravidade","Evento já ocorrido"],ans:2},
+  {q:"O GRO significa:",opts:["Grupo de Risco Operacional","Gerenciamento de Riscos Ocupacionais","Gestão de Recursos Organizacionais","Guia Regulatório Obrigatório"],ans:1},
+  {q:"O inventário de riscos corresponde a:",opts:["Lista de equipamentos","Levantamento estruturado dos riscos do trabalho","Controle financeiro","Registro de acidentes"],ans:1},
+  {q:"Indicadores proativos têm como foco:",opts:["Acidentes já ocorridos","Prevenção de riscos","Controle de custos","Aumento de produção"],ans:1},
+  {q:"Um risco é considerado elevado quando há:",opts:["Ausência de controle apenas","Baixa probabilidade e alta gravidade","Alta probabilidade e alta gravidade","Nenhum dano possível"],ans:2},
+  {q:"Um risco com baixa probabilidade, mas com consequência fatal, deve ser classificado como:",opts:["Baixo","Moderado","Alto","Desprezível"],ans:2},
+  {q:"Assinale a alternativa com erro conceitual:",opts:["Perigo é fonte de dano","Risco envolve probabilidade","Risco é igual a perigo","Risco envolve gravidade"],ans:2},
+  {q:"Um ambiente com uso de EPI, mas sem controle na fonte do risco, indica:",opts:["Controle ideal","Aplicação correta da hierarquia","Falha na priorização das medidas de controle","Excesso de segurança"],ans:2},
+  {q:"Ao considerar apenas acidentes ocorridos, a empresa está focando em:",opts:["Prevenção","Indicadores proativos","Indicadores reativos","Eliminação de riscos"],ans:2},
+  {q:"Substituir um processo perigoso por outro mais seguro é uma medida chamada de:",opts:["Controle administrativo","Mitigação","Substituição","Proteção individual"],ans:2},
+  {q:"A normalização do desvio ocorre quando:",opts:["As normas são devidamente cumpridas","Os riscos são completamente eliminados","Situações inseguras passam a ser aceitas como normais","Há fiscalização constante no setor"],ans:2},
+  {q:"Um trabalhador não comunica um risco por considerá-lo 'comum'. Isso representa:",opts:["Consciência de risco","Cultura preventiva","Falha comportamental e cultural","Ação proativa"],ans:2},
+  {q:"A etapa mais negligenciada, porém crítica no ciclo PDCA, costuma ser:",opts:["Planejar","Executar","Verificar","Agir"],ans:3},
+  {q:"A eficácia do PGR depende diretamente de:",opts:["Documentação apenas","Aplicação prática e monitoramento contínuo","Auditorias externas exclusivamente","Redução de custos operacionais"],ans:1},
+  {q:"A melhor estratégia de controle de risco, segundo a hierarquia, é:",opts:["Uso de EPI","Treinamento","Eliminação do risco","Procedimento administrativo"],ans:2}
+];
+
+let quiz=[],answers=[],currentQ=0,timerInt=null,secsLeft=300,student="",selectedTeam="";
+
+function selectTeam(btn){
+  document.querySelectorAll('.team-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedTeam=btn.dataset.team;
+}
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+function startQuiz(){
+  const sel=document.getElementById('name-select').value;
+  if(!sel){alert('Selecione seu nome para continuar.');return;}
+  if(!selectedTeam){alert('Selecione sua equipe para continuar.');return;}
+  student=sel;
+  quiz=shuffle(ALL_Q).slice(0,20);
+  answers=new Array(20).fill(null);
+  const parts=sel.split(' ');
+  const initials=(parts[0][0]+(parts[1]?parts[1][0]:'')).toUpperCase();
+  document.getElementById('avatar-initials').textContent=initials;
+  document.getElementById('display-name').textContent=parts[0];
+  buildDots();showScreen('screen-quiz');renderQ(0);startTimer();
+}
+
+function buildDots(){
+  const w=document.getElementById('dots-wrap');w.innerHTML='';
+  for(let i=0;i<20;i++){const d=document.createElement('div');d.className='dot';d.id='d'+i;d.onclick=()=>goTo(i);w.appendChild(d);}
+}
+
+function updateDots(){
+  for(let i=0;i<20;i++){const d=document.getElementById('d'+i);d.className='dot'+(answers[i]!==null?' answered':'')+(i===currentQ?' current':'');}
+}
+
+function renderQ(idx){
+  currentQ=idx;
+  const q=quiz[idx];
+  const L=['A','B','C','D'];
+  document.getElementById('q-num-badge').textContent='⚡ Questão '+(idx+1);
+  document.getElementById('q-text').textContent=q.q;
+  const opts=document.getElementById('opts');opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn'+(answers[idx]===i?' selected':'');
+    btn.innerHTML='<span class="opt-letter">'+L[i]+'</span>'+o;
+    btn.onclick=()=>pick(idx,i);
+    opts.appendChild(btn);
+  });
+  const done=answers.filter(a=>a!==null).length;
+  document.getElementById('q-progress-lbl').textContent='Questão '+(idx+1)+' de 20';
+  const xp=Math.round((done/20)*100);
+  document.getElementById('xp-bar').style.width=xp+'%';
+  document.getElementById('xp-count').textContent=xp+' / 100 XP';
+  document.getElementById('btn-prev').disabled=idx===0;
+  document.getElementById('btn-next').disabled=idx===19;
+  updateDots();
+}
+
+function pick(qIdx,optIdx){answers[qIdx]=optIdx;renderQ(qIdx);}
+function goTo(idx){if(idx>=0&&idx<20)renderQ(idx);}
+
+function startTimer(){
+  secsLeft=300;
+  timerInt=setInterval(()=>{
+    secsLeft--;
+    const m=String(Math.floor(secsLeft/60)).padStart(2,'0');
+    const s=String(secsLeft%60).padStart(2,'0');
+    document.getElementById('timer-display').textContent=m+':'+s;
+    const chip=document.getElementById('timer-chip');
+    chip.className=secsLeft<=30?'timer-chip danger':secsLeft<=90?'timer-chip warn':'timer-chip';
+    if(secsLeft<=0){clearInterval(timerInt);finishQuiz();}
+  },1000);
+}
+
+function confirmFinish(){
+  const u=answers.filter(a=>a===null).length;
+  if(u>0&&!confirm(u+' questão(ões) sem resposta. Finalizar mesmo assim?'))return;
+  finishQuiz();
+}
+
+function finishQuiz(){
+  clearInterval(timerInt);
+  let score=0;
+  quiz.forEach((q,i)=>{if(answers[i]===q.ans)score++;});
+  showResults(score);sendSheets(score);
+}
+
+function showResults(score){
+  showScreen('screen-result');
+  const pct=Math.round((score/20)*100);
+  const ok=score>=10;
+  document.getElementById('trophy-icon').textContent=score>=18?'🏆':score>=14?'🥈':score>=10?'🥉':'💪';
+  document.getElementById('result-title').textContent=ok?'Parabéns, você passou!':'Continue estudando!';
+  document.getElementById('result-name').textContent=student;
+  document.getElementById('result-team').textContent='🏷️ '+selectedTeam;
+  document.getElementById('score-big').textContent=score;
+  const ring=document.getElementById('ring-fill');
+  const circ=364.4;
+  ring.setAttribute('stroke',ok?'#22c55e':'#ef4444');
+  setTimeout(()=>{ring.style.transition='stroke-dashoffset 1s ease';ring.setAttribute('stroke-dashoffset',String(circ-(circ*(score/20))));},150);
+  const pill=document.getElementById('status-pill');
+  pill.textContent=pct+'% de acertos — '+(ok?'Aprovado ✓':'Recuperação');
+  pill.className='status-pill '+(ok?'ok':'fail');
+  const grid=document.getElementById('answers-grid');grid.innerHTML='';
+  const L=['A','B','C','D'];
+  quiz.forEach((q,i)=>{
+    const c=answers[i]===q.ans;
+    const div=document.createElement('div');
+    div.className='ans-item '+(c?'ok':'fail');
+    div.innerHTML='<div class="ans-icon">'+(c?'✓':'✗')+'</div><div><div style="font-weight:800;color:#fff">Q'+(i+1)+(c?'':' — Correto: '+L[q.ans])+'</div><div class="ans-qtext">'+q.q.substring(0,80)+'…</div></div>';
+    grid.appendChild(div);
+  });
+}
+
+async function sendSheets(score){
+  const el=document.getElementById('sheets-bar');
+  el.style.display='flex';el.textContent='⏳ Enviando para o Google Sheets...';
+  const now=new Date();
+  const dt=now.toLocaleDateString('pt-BR')+' '+now.toLocaleTimeString('pt-BR');
+  const L=['A','B','C','D'];
+  let det='';
+  quiz.forEach((q,i)=>{const r=answers[i]!==null?L[answers[i]]:'NR';det+='Q'+(i+1)+':'+r+'('+L[q.ans]+')['+(answers[i]===q.ans?'OK':'X')+']; ';});
+  try{
+    await fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome:student,equipe:selectedTeam,data:dt,pontuacao:score,total:20,percentual:Math.round((score/20)*100),detalhes:det.trim()})});
+    el.textContent='✅ Resultado salvo no Google Sheets!';
+  }catch(e){el.textContent='⚠️ Falha no envio. Anote: '+student+' ('+selectedTeam+') — '+score+'/20';}
+}
+
+function goHome(){
+  showScreen('screen-entry');
+}
+
+// ── DASHBOARD ──
+function openDashboard(){
+  showScreen('screen-dashboard');
+  loadDashboard();
+}
+
+async function loadDashboard(){
+  const btn=document.getElementById('dash-refresh-btn');
+  const errEl=document.getElementById('dash-error');
+  const content=document.getElementById('dash-content');
+  btn.classList.add('loading');btn.textContent='⏳ Carregando...';
+  errEl.style.display='none';
+  try{
+    const res=await fetch(SHEETS_URL,{method:'GET',mode:'cors'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const raw=await res.json();
+    // raw = [[nome, data, pontuacao, total, percentual, equipe, detalhes], ...]
+    // skip header row if it exists (check if first cell is "nome" or non-numeric)
+    let rows=raw;
+    if(rows.length&&isNaN(Number(rows[0][2])))rows=rows.slice(1);
+    renderDashboard(rows,content);
+  }catch(e){
+    errEl.style.display='block';
+    errEl.textContent='⚠️ Não foi possível carregar os dados. Verifique a URL do Google Apps Script e permissões (doGet deve retornar dados publicamente).';
+    content.innerHTML='<div class="dash-empty">Sem dados para exibir.</div>';
+  }
+  btn.classList.remove('loading');btn.textContent='🔄 Atualizar';
+}
+
+function renderDashboard(rows, container){
+  if(!rows||rows.length===0){container.innerHTML='<div class="dash-empty">Nenhum resultado registrado ainda.</div>';return;}
+
+  // Parse rows: [nome, data, pontuacao, total, percentual, equipe, detalhes]
+  const entries=rows.map(r=>({
+    nome:String(r[0]||''),
+    data:String(r[1]||''),
+    pontuacao:Number(r[2])||0,
+    total:Number(r[3])||20,
+    percentual:Number(String(r[4]||'0').replace('%',''))||0,
+    equipe:String(r[5]||'Sem equipe'),
+    detalhes:String(r[6]||'')
+  })).filter(e=>e.nome);
+
+  if(!entries.length){container.innerHTML='<div class="dash-empty">Nenhum resultado válido encontrado.</div>';return;}
+
+  // Summary
+  const total=entries.length;
+  const mediaGeral=Math.round(entries.reduce((s,e)=>s+e.pontuacao,0)/total);
+  const aprovados=entries.filter(e=>e.pontuacao>=10).length;
+
+  // Teams
+  const teamNames=['EQUIPE 1','EQUIPE 2','EQUIPE 3','EQUIPE 4','EQUIPE 5','EQUIPE 6'];
+  const teamData=teamNames.map(name=>{
+    const members=entries.filter(e=>e.equipe===name);
+    const soma=members.reduce((s,e)=>s+e.pontuacao,0);
+    const avg=members.length?Math.round(soma/members.length):0;
+    return {name,members:members.length,soma,avg};
+  }).filter(t=>t.members>0);
+
+  // Top 10 ranking
+  const sorted=[...entries].sort((a,b)=>b.pontuacao-a.pontuacao).slice(0,10);
+
+  // Build HTML
+  let html=`
+  <div class="summary-row">
+    <div class="sum-box"><div class="sum-val">${total}</div><div class="sum-lbl">Participantes</div></div>
+    <div class="sum-box"><div class="sum-val">${mediaGeral}/20</div><div class="sum-lbl">Média geral</div></div>
+    <div class="sum-box"><div class="sum-val">${Math.round((aprovados/total)*100)}%</div><div class="sum-lbl">Aprovados</div></div>
+  </div>`;
+
+  if(teamData.length){
+    const maxSoma=Math.max(...teamData.map(t=>t.soma))||1;
+    html+=`<div class="teams-section"><div class="section-title">🏅 Ranking de Equipes — Total de Acertos</div>`;
+    teamData.sort((a,b)=>b.soma-a.soma).forEach((t,i)=>{
+      const barW=Math.round((t.soma/maxSoma)*100);
+      const medal=i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'';
+      const posColor=i===0?'#ffc800':i===1?'#c0c0c0':i===2?'#cd7f32':'#aaa';
+      html+=`<div class="team-row">
+        <div class="team-row-head">
+          <span class="team-row-name">${medal}${t.name}</span>
+          <span class="team-row-avg" style="color:${posColor}">${t.soma} pts · média ${t.avg}/20</span>
+        </div>
+        <div class="team-bar-wrap"><div class="team-bar-fill" style="width:${barW}%"></div></div>
+        <div class="team-count">${t.members} participante${t.members!==1?'s':''} · ${t.soma} acertos no total</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  html+=`<div class="ranking-section"><div class="section-title">🏆 Ranking Individual (Top 10)</div>`;
+  sorted.forEach((e,i)=>{
+    const posClass=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    const pct=Math.round((e.pontuacao/e.total)*100);
+    const ok=e.pontuacao>=10;
+    html+=`<div class="rank-item">
+      <div class="rank-pos ${posClass}">${medal||i+1}</div>
+      <div class="rank-info">
+        <div class="rank-name">${e.nome}</div>
+        <div class="rank-meta">${e.equipe} · ${e.data}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="rank-score">${e.pontuacao}/20</div>
+        <div class="rank-pct" style="color:${ok?'#22c55e':'#ef4444'}">${pct}%</div>
+      </div>
+    </div>`;
+  });
+  html+=`</div>`;
+
+  container.innerHTML=html;
+}
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+</script>
